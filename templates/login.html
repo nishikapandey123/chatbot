@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatBot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('bot.jpg');
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #ffdd99;
+            color: #000;
+        }
+
+        .bot-message {
+            background-color: #8080ff;
+            color: #fff;
+        }
+
+        .input-container {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .input-container input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px 0 0 4px;
+            border: none;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 0 4px 4px 0;
+            border: none;
+            background-color: #8080ff;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-messages"></div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type your questions" pattern="[A-Az-Zz]+[A-Az-Zz]">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        var chatMessages = document.getElementById("chat-messages");
+        var userInput = document.getElementById("user-input");
+        var sendButton = document.getElementById("send-button");
+
+        // Function to send user message and get response
+        function sendMessage() {
+            var userText = userInput.value;
+            appendMessage("User: " + userText, "user-message");
+
+            // Make an AJAX POST request to the server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/store_info", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = xhr.responseText;
+                    appendMessage("ChatBot: " + response, "bot-message");
+                }
+            };
+            xhr.send("msg=" + encodeURIComponent(userText));
+
+            userInput.value = "";
+        }
+
+        // Function to append a message to the chat container
+        function appendMessage(message, className) {
+            var newMessage = document.createElement("div");
+            newMessage.textContent = message;
+            newMessage.classList.add("chat-message", className);
+            chatMessages.appendChild(newMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Event listener for send button click
+        sendButton.addEventListener("click", sendMessage);
+
+        // Event listener for Enter key press
+        userInput.addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+
